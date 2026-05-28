@@ -1,18 +1,20 @@
 package src;
-import java.util.ArrayList;
 
 import src.database.Database;
-import src.database.Model;
 import src.entities.*;
 
 public class Main {
     public static void main(String[] args) {
-        Model<User> userModel = new Model<>("Users");
-        Model<Livro> livroModel = new Model<>("Livros");
-
-        ArrayList<Model> modelArrayList = new ArrayList<Model>();
-        modelArrayList.add(userModel);
-        modelArrayList.add(livroModel);
-        Database database = new Database(modelArrayList);
+        try {
+            new Database.Model<User>("users", User.class, "id");
+            new Database.Model<Livro>("livros", Livro.class, "id");
+        } catch (NoSuchFieldException e) {
+            System.out.println("Error creating model: " + e.getMessage());
+            return;
+        } catch (SecurityException e) {
+            System.out.println("Error creating model: " + e.getMessage());
+            return;
+        }
+        Database.startDB();
     }
 }
