@@ -9,18 +9,22 @@ public class Database {
     private static class Relationship {
         private String relationFieldName;
         private String fieldName;
-        private Model<?> model;
+        private Model<?, ?> model;
+        private String relationType;
 
-        public Relationship(Model<?> model, String relationFieldName, String fieldName) {
+        public Relationship(
+            Model<?,?> model, String relationFieldName, String fieldName, String relationType
+        ) {
             this.relationFieldName = relationFieldName;
             this.fieldName = fieldName;
             this.model = model;
+            this.relationType = relationType;
         }
 
         public String getRelationFieldName() {
             return relationFieldName;
         }
-        public Model<?> getModel() {
+        public Model<?, ?> getModel() {
             return model;
         }
         public String getFieldName() {
@@ -28,8 +32,8 @@ public class Database {
         }
     }
 
-    public static class Model<T> {
-        private ArrayList<T> data;
+    public static class Model<T, K extends Class<?>> {
+        private ArrayList<K> data;
         private ArrayList<Relationship> relationships;
         private String name;
         private Class<T> clazz;
@@ -37,7 +41,7 @@ public class Database {
 
         public Model(String name, Class<T> clazz, String primaryKey)  throws NoSuchFieldException, SecurityException {
             this.name = name;
-            this.data = new ArrayList<T>();
+            this.data = new ArrayList<K>();
             this.relationships = new ArrayList<Relationship>();
             models.add(this);
             this.clazz = clazz;
@@ -53,21 +57,45 @@ public class Database {
         public String getName() {
             return name;
         }
+        public boolean exists (Integer pk) throws IllegalAccessException {
+            boolean exist = false;
+            for (K obj: data) {
+                for (Field f: obj.getFields()) {
+                    if (f.getName()!=primaryKey) {
+                        continue;
+                    }
+                    Object value = f.get(obj);
+                    if (value==pk) {
+                        exist=true;
+                    }
+                }
+            }
+            return exist;
+        }
+
+        public T create(K data) throws NoSuchFieldException, SecurityException, IllegalAccessException {
+            if (!relationships.isEmpty()) {
+                for (Relationship r: relationships) {
+                    Field rField = data.getField(r.relationFieldName);
+                    Object x = rField.get(data);
+                }
+            }
+        }
     }
 
     public static void startDB() {
-        for (Model<?> model: models) {
+        for (Model<?, ?> model: models) {
             for (Field field: model.clazz.getFields()) {
                 Class<?> fieldType = field.getType();
-                for (Model<?> m: models) {
+                for (Model<?, ?> m: models) {
                     if (m.clazz==fieldType) {
                         Relationship relationship = new Relationship(
-                            m, m.getPrimaryKey(), field.getName()
+                            m, m.getPrimaryKey(), field.getName(), "one-to-one"
                         );
                         model.relationships.add(relationship);
                     } else if (m.clazz==ArrayList.class) {
                         Relationship relationship = new Relationship(
-                            m, m.getPrimaryKey(), field.getName()
+                            m, m.getPrimaryKey(), field.getName(), "one-to-many"
                         );
                         model.relationships.add(relationship);
                     }
@@ -76,8 +104,8 @@ public class Database {
         }
     }
 
-    public static Model<?> searchModelByName(String name) throws Error {
-        for (Model<?> model : models) {
+    public static Model<?, ?> searchModelByName(String name) throws Error {
+        for (Model<?, ?> model : models) {
             if (model.name==name) {
                 return model;
             }
