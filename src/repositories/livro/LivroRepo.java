@@ -14,10 +14,10 @@ public class LivroRepo {
         return false;
     }
     
-    public static void addLivro(LivroAddType livro) {
+    public static ReturnTypes.LivroAddType addLivro(ParamTypes.LivroAddType livro) {
         if (!UserRepo.userExists(livro.autor_id)) {
             System.out.println("Autor com id " + livro.autor_id + " não existe.");
-            return;
+            return null;
         }
 
         int autorId = livro.autor_id;
@@ -30,18 +30,26 @@ public class LivroRepo {
         novoLivro.genero = livro.genero;
         novoLivro.copiasDisponiveis = livro.copiasDisponiveis;
         Database.livros.add(novoLivro);
+
+        ReturnTypes.LivroAddType livroDTO = new ReturnTypes.LivroAddType();
+        livroDTO.id = id;
+        livroDTO.titulo = livro.titulo;
+        livroDTO.autor_id = autorId;
+        livroDTO.genero = livro.genero;
+        livroDTO.copiasDisponiveis = livro.copiasDisponiveis;
+        return livroDTO;
     }
 
-    public static LivroGetType getLivroById(int id) {
+    public static ReturnTypes.LivroGetType getLivroById(int id) {
         for (Livro livro : Database.livros) {
             if (livro.id == id) {
-                LivroGetType livroGet = new LivroGetType();
-                livroGet.id = livro.id;
-                livroGet.titulo = livro.titulo;
-                livroGet.autor = UserRepo.getUserById(livro.autor_id);
-                livroGet.genero = livro.genero;
-                livroGet.copiasDisponiveis = livro.copiasDisponiveis;
-                return livroGet;
+                ReturnTypes.LivroGetType livroDTO = new ReturnTypes.LivroGetType();
+                livroDTO.id = livro.id;
+                livroDTO.titulo = livro.titulo;
+                livroDTO.autor_id = livro.autor_id;
+                livroDTO.genero = livro.genero;
+                livroDTO.copiasDisponiveis = livro.copiasDisponiveis;
+                return livroDTO;
             }
         }
         return null;
@@ -56,7 +64,7 @@ public class LivroRepo {
         }
     }
 
-    public static LivroGetType updateLivro(int id, LivroUpdateType livro) {
+    public static ReturnTypes.LivroUpdateType updateLivro(int id, ParamTypes.LivroUpdateType livro) {
         for (Livro l : Database.livros) {
             if (l.id == id) {
                 if (livro.autor_id != null && UserRepo.userExists(livro.autor_id)) {
@@ -74,12 +82,12 @@ public class LivroRepo {
                 if (livro.copiasDisponiveis != null) {
                     l.copiasDisponiveis = livro.copiasDisponiveis;
                 }
-                LivroGetType livroGet = new LivroGetType();
-                livroGet.titulo = l.titulo;
-                livroGet.autor = UserRepo.getUserById(l.autor_id);
-                livroGet.genero = l.genero;
-                livroGet.copiasDisponiveis = l.copiasDisponiveis;
-                return livroGet;
+                ReturnTypes.LivroUpdateType livroDTO = new ReturnTypes.LivroUpdateType();
+                livroDTO.titulo = l.titulo;
+                livroDTO.autor_id = l.autor_id;
+                livroDTO.genero = l.genero;
+                livroDTO.copiasDisponiveis = l.copiasDisponiveis;
+                return livroDTO;
             }
         }
         return null;

@@ -1,10 +1,13 @@
 package src.repositories.user;
+
 import java.util.ArrayList;
+
 import src.database.Database;
-import src.entities.Livro;
-import src.entities.User;
-import src.repositories.livro.LivroGetType;
-import src.repositories.livro.LivroRepo;
+import src.entities.*;
+
+import src.repositories.livrosEmprestados.LivrosEmprestadosRepo;
+
+import src.repositories.livrosEmprestados.ReturnTypes.LivrosEmprestadosGetType;
 
 public class UserRepo {
 
@@ -17,36 +20,42 @@ public class UserRepo {
         return false;
     }
 
-    public static void addUser(UserAddType user) {
+    public static ReturnTypes.UserAddType addUser(ParamTypes.UserAddType user) {
         User newUser = new User();
         newUser.id = Database.users.size() + 1;
         newUser.nome = user.nome;
-        if (user.livrosEmprestados != null) {
-            for (Integer livroId : user.livrosEmprestados) {
-                if (!LivroRepo.livroExists(livroId)) {
-                    System.out.println("Livro com id " + livroId + " não existe.");
-                    return;
-                }
-            }
-            newUser.livrosEmprestados = user.livrosEmprestados;
-        } else {
-            newUser.livrosEmprestados = new ArrayList<>();
-        }
         Database.users.add(newUser);
+        ReturnTypes.UserAddType userDTO = new ReturnTypes.UserAddType();
+        userDTO.id = newUser.id;
+        userDTO.nome = newUser.nome;
+        userDTO.livrosEmprestados = new ArrayList<>();
+        return userDTO;
     }
 
-    public static UserGetType getUserById(int id) {
+    public static ReturnTypes.UserGetType getUserById(int id) {
         for (User user : Database.users) {
             if (user.id == id) {
-                UserGetType userGet = new UserGetType();
-                userGet.id = user.id;
-                userGet.nome = user.nome;
-                userGet.livrosEmprestados = new ArrayList<>();
-                for (Integer livroId : user.livrosEmprestados) {
-                    LivroRepo.getLivroById(livroId);
-                    userGet.livrosEmprestados.add(LivroRepo.getLivroById(livroId));
+                ReturnTypes.UserGetType userDTO = new ReturnTypes.UserGetType();
+                userDTO.id = user.id;
+                userDTO.nome = user.nome;
+                userDTO.livrosEmprestados = new ArrayList<>();
+                for (LivrosEmprestados livroEmprestado : Database.livrosEmprestados) {
+                    if (livroEmprestado.user_id == user.id) {
+
+                        Livro livro = LivrosEmprestadosRepo.converterLivroEmprestadoToLivro(
+                            livroEmprestado
+                        );
+
+                        LivrosEmprestadosGetType livroEmprestadoDTO = new LivrosEmprestadosGetType();
+                        livroEmprestadoDTO.user_id = id;
+                        livroEmprestadoDTO.livro = livro;
+                        livroEmprestadoDTO.dataEmprestimo = livroEmprestado.dataEmprestimo;
+                        livroEmprestadoDTO.dataDevolucao = livroEmprestado.dataDevolucao;
+
+                        userDTO.livrosEmprestados.add(livroEmprestadoDTO);
+                    }
                 }
-                return userGet;
+                return userDTO;
             }
         }
         return null;
@@ -61,72 +70,37 @@ public class UserRepo {
         }
     }
 
-    public static void updateEmprestarLivro(User user, UserUpdateType userUpdate) {
-        if (userUpdate.novosLivrosEmprestados == null)
-            return;
-        
-        ArrayList<LivroGetType> novosLivros = new ArrayList<>();
-        for (Integer livroId : userUpdate.novosLivrosEmprestados) {
-            if (!LivroRepo.livroExists(livroId)) {
-                System.out.println("Livro com id " + livroId + " não existe.");
-                return;
-            }
-            for (Integer livrosEmprestados : user.livrosEmprestados) {
-                if (livrosEmprestados == livroId) {
-                    System.out.println("Livro com id " + livroId + " já está emprestado para o usuário.");
-                    return;
-                }
-            }
-            novosLivros.add(LivroRepo.getLivroById(livroId));
-        }
-        for (LivroGetType livro : novosLivros) {
-            user.livrosEmprestados.add(livro.id);
-        }
-    }
 
-    public static void updateDevolverLivro(User user, UserUpdateType userUpdate) {
-        if (userUpdate.livrosDevolvidos == null)
-            return;
-        
-        for (Integer livroId : userUpdate.livrosDevolvidos) {
-            if (!LivroRepo.livroExists(livroId)) {
-                System.out.println("Livro com id " + livroId + " não existe.");
-                return;
-            }
-            boolean livroEmprestado = false;
-            for (Integer livrosEmprestados : user.livrosEmprestados) {
-                if (livrosEmprestados == livroId) {
-                    livroEmprestado = true;
-                    break;
-                }
-            }
-            if (!livroEmprestado) {
-                System.out.println("Livro com id " + livroId + " não está emprestado para o usuário.");
-                return;
-            }
-        }
-        for (Integer livroId : userUpdate.livrosDevolvidos) {
-            user.livrosEmprestados.remove(livroId);
-        }
-    }
-
-    public static UserGetType updateUser(int id, UserUpdateType user) {
+    public static ReturnTypes.UserUpdateType updateUser(int id, ParamTypes.UserUpdateType user) {
         for (User u : Database.users) {
             if (u.id == id) {
-                updateEmprestarLivro(u, user);
-                updateDevolverLivro(u, user);
+                if (user.novosLivrosEmprestados != null) {
+                    LivrosEmprestadosRepo.addEmprestimos(id, user.novosLivrosEmprestados);
+                }
+                if (user.livrosDevolvidos != null) {
+                    LivrosEmprestadosRepo.devolverLivros(id, user.livrosDevolvidos);
+                }
                 if (user.nome != null) {
                     u.nome = user.nome;
                 }
-                UserGetType userGet = new UserGetType();
-                userGet.id = u.id;
-                userGet.nome = u.nome;
-                userGet.livrosEmprestados = new ArrayList<>();
-                for (Integer livroId : u.livrosEmprestados) {
-                    LivroRepo.getLivroById(livroId);
-                    userGet.livrosEmprestados.add(LivroRepo.getLivroById(livroId));
+                ReturnTypes.UserUpdateType userDTO = new ReturnTypes.UserUpdateType();
+                ArrayList<LivrosEmprestados> livrosEmprestados = LivrosEmprestadosRepo.getByUserId(id);
+
+                for (LivrosEmprestados livroEmprestado : livrosEmprestados) {
+                    Livro livro = LivrosEmprestadosRepo.converterLivroEmprestadoToLivro(livroEmprestado);
+
+                    LivrosEmprestadosGetType livroEmprestadoDTO = new LivrosEmprestadosGetType();
+                    livroEmprestadoDTO.user_id = id;
+                    livroEmprestadoDTO.livro = livro;
+                    livroEmprestadoDTO.dataEmprestimo = livroEmprestado.dataEmprestimo;
+                    livroEmprestadoDTO.dataDevolucao = livroEmprestado.dataDevolucao;
+
+                    userDTO.livrosEmprestados.add(livroEmprestadoDTO);
                 }
-                return userGet;
+
+                userDTO.id = u.id;
+                userDTO.nome = u.nome;
+                return userDTO;
             }
         }
         return null;
