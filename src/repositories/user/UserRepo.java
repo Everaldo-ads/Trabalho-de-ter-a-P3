@@ -84,6 +84,7 @@ public class UserRepo {
                     u.nome = user.nome;
                 }
                 ReturnTypes.UserUpdateType userDTO = new ReturnTypes.UserUpdateType();
+                userDTO.livrosEmprestados = new ArrayList<>();
                 ArrayList<LivrosEmprestados> livrosEmprestados = LivrosEmprestadosRepo.getByUserId(id);
 
                 for (LivrosEmprestados livroEmprestado : livrosEmprestados) {
