@@ -1,9 +1,7 @@
-package src.models;
-
+package src.repositories.user;
 import java.util.ArrayList;
 
-public class UserM {
-    public int id;
+public class UserAddType {
     public String nome;
     public ArrayList<Integer> livrosEmprestados;
 }
