@@ -11,6 +11,7 @@ import src.repositories.livro.LivroRepo;
 import src.repositories.user.UserRepo;
 import src.repositories.user.ReturnTypes.UserGetType;
 import src.repositories.livro.ReturnTypes.LivroGetType;
+import src.repositories.livro.ParamTypes.LivroUpdateType;
 
 public class LivrosEmprestadosRepo {
     
@@ -39,6 +40,9 @@ public class LivrosEmprestadosRepo {
                 }
             }
             livro.copiasDisponiveis -= 1;
+            LivroUpdateType livroUpdate = new LivroUpdateType();
+            livroUpdate.copiasDisponiveis = livro.copiasDisponiveis;
+            LivroRepo.updateLivro(livroId, livroUpdate);
 
             LivrosEmprestados novoEmprestimo = new LivrosEmprestados();
             novoEmprestimo.user_id = user.id;
@@ -76,6 +80,9 @@ public class LivrosEmprestadosRepo {
             }
             LivroGetType livro = LivroRepo.getLivroById(livroId);
             livro.copiasDisponiveis += 1;
+            LivroUpdateType livroUpdate = new LivroUpdateType();
+            livroUpdate.copiasDisponiveis = livro.copiasDisponiveis;
+            LivroRepo.updateLivro(livroId, livroUpdate);
         }
     }
 
