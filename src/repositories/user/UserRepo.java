@@ -1,12 +1,8 @@
 package src.repositories.user;
-
 import java.util.ArrayList;
-
 import src.database.Database;
 import src.entities.*;
-
 import src.repositories.livrosEmprestados.LivrosEmprestadosRepo;
-
 import src.repositories.livrosEmprestados.ReturnTypes.LivrosEmprestadosGetType;
 
 public class UserRepo {

@@ -16,7 +16,7 @@ public class LivroRepo {
     public static ReturnTypes.LivroAddType addLivro(ParamTypes.LivroAddType livro) {
 
 
-        int id = Database.livros.get(Database.livros.size()-1).id + 1;
+        int id = Database.livros.isEmpty() ? 1 : Database.livros.get(Database.livros.size() - 1).id + 1;
 
         Livro novoLivro = new Livro();
         novoLivro.id = id;
