@@ -9,12 +9,11 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 /**
- * Classe principal que gerencia a interface com o usuário via console.
- * Utiliza estruturas de repetição e decisão para navegar no menu do sistema.
+ * Classe responsável por gerenciar a execução do sistema de biblioteca e a interface de console.
  */
 public class Biblioteca {
+    // Método principal que roda o menu e direciona as ações
     public void iniciar() {
-        // Scanner para leitura de dados do teclado no console
         Scanner teclado = new Scanner(System.in);
         int opcao;
 
