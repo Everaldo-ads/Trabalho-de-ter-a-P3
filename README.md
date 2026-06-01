@@ -18,3 +18,4 @@ livros, realizar empréstimos e devoluções, e consultar informações sobre os
 
 [Documento de Requisitos](docs/Documento_de_Requisitos.pdf)
 [Diagrama de Classes](docs/Diagrama_de_Classes.pdf)
+[Manual do Usuário](docs/Manual_do_Usuário.pdf)
