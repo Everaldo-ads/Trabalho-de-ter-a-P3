@@ -32,69 +32,70 @@ public class Biblioteca {
             System.out.println("0. Sair do Sistema");
             System.out.print("Escolha uma opção: ");
             
-            // 1. PRIMEIRO: Aplica a boa prática do slide de capturar a entrada como String para higienização
-            String opcaoInput = teclado.nextLine();
-            
-            // Regra de Segurança: Se a entrada não contiver apenas dígitos, define uma opção inválida para o switch
-            if (!opcaoInput.matches("\\d+")) {
-                opcao = -1;
+            // VALIDAÇÃO DO MENU: Verifica se a entrada é um número inteiro antes de ler para evitar travamentos
+            if (teclado.hasNextInt()) {
+                opcao = teclado.nextInt();
+                teclado.nextLine(); // LIMPEZA DE BUFFER: Consome o "Enter" deixado para trás pelo nextInt()
             } else {
-                opcao = Integer.parseInt(opcaoInput); // Efetua o Parser seguro da String para Inteiro
+                opcao = -1;         // DESVIO DE SEGURANÇA: Define uma opção inválida para cair no default do switch
+                teclado.nextLine(); // LIMPEZA DE BUFFER: Consome e descarta o texto incorreto para evitar loop infinito
             }
 
             // Estrutura condicional switch-case para direcionar a ação escolhida pelo usuário
             switch (opcao) {
-               case 1:
-    System.out.println("\n--- CADASTRAR NOVO LIVRO ---");
-    
-    // 1. PRIMEIRO: Instancia o pacote de dados (DTO) para enviar ao repositório
-    src.repositories.livro.ParamTypes.LivroAddType novoLivro = new src.repositories.livro.ParamTypes.LivroAddType();
-    
-    // 2. SEGUNDO: Captura e valida o Título do Livro
-    System.out.print("Título do Livro: ");
-    novoLivro.titulo = teclado.nextLine();
-    
-    while (novoLivro.titulo.trim().isEmpty()) {
-        System.out.println(">> Erro: O título do livro é um campo obrigatório.");
-        System.out.print("Por favor, digite um título válido: ");
-        novoLivro.titulo = teclado.nextLine();
-    }
-    
-    // 3. TERCEIRO: Captura e valida o Autor do Livro
-    System.out.print("Autor do Livro: ");
-    novoLivro.autor = teclado.nextLine();
-    
-    while (novoLivro.autor.trim().isEmpty()) {
-        System.out.println(">> Erro: O autor do livro é um campo obrigatório.");
-        System.out.print("Por favor, digite um autor válido: ");
-        novoLivro.autor = teclado.nextLine();
-    }
-    
-    // 4. QUARTO: Captura e valida o Gênero do Livro
-    System.out.print("Gênero: ");
-    novoLivro.genero = teclado.nextLine();
-    
-    while (novoLivro.genero.trim().isEmpty()) {
-        System.out.println(">> Erro: O gênero do livro é um campo obrigatório.");
-        System.out.print("Por favor, digite um gênero válido: ");
-        novoLivro.genero = teclado.nextLine();
-    }
-    
-    // 5. QUINTO: Captura e valida a Quantidade de Cópias (Estoque)
-    System.out.print("Quantidade de Cópias Disponíveis: ");
-    String copiasInput = teclado.nextLine();
-    
-    while (!copiasInput.matches("\\d+")) {
-        System.out.println(">> Erro: A quantidade de cópias deve ser um número inteiro positivo.");
-        System.out.print("Por favor, digite uma quantidade válida: ");
-        copiasInput = teclado.nextLine();
-    }
-    novoLivro.copiasDisponiveis = Integer.parseInt(copiasInput);
+                case 1:
+                    System.out.println("\n--- CADASTRAR NOVO LIVRO ---");
+                    
+                    // 1. PRIMEIRO: Instancia o pacote de dados (DTO) para enviar ao repositório
+                    src.repositories.livro.ParamTypes.LivroAddType novoLivro = new src.repositories.livro.ParamTypes.LivroAddType();
+                    
+                    // 2. SEGUNDO: Captura e valida o Título do Livro
+                    System.out.print("Título do Livro: ");
+                    novoLivro.titulo = teclado.nextLine();
+                    
+                    // VALIDAÇÃO COM WHILE: Bloqueia o avanço do fluxo enquanto o título não for preenchido
+                    while (novoLivro.titulo.trim().isEmpty()) {
+                        System.out.println(">> Erro: O título do livro é um campo obrigatório.");
+                        System.out.print("Por favor, digite um título válido: ");
+                        novoLivro.titulo = teclado.nextLine();
+                    }
+                    
+                    // 3. TERCEIRO: Captura e valida o Autor do Livro
+                    System.out.print("Autor do Livro: ");
+                    novoLivro.autor = teclado.nextLine();
+                    
+                    while (novoLivro.autor.trim().isEmpty()) {
+                        System.out.println(">> Erro: O autor do livro é um campo obrigatório.");
+                        System.out.print("Por favor, digite um autor válido: ");
+                        novoLivro.autor = teclado.nextLine();
+                    }
+                    
+                    // 4. QUARTO: Captura e valida o Gênero do Livro
+                    System.out.print("Gênero: ");
+                    novoLivro.genero = teclado.nextLine();
+                    
+                    while (novoLivro.genero.trim().isEmpty()) {
+                        System.out.println(">> Erro: O gênero do livro é um campo obrigatório.");
+                        System.out.print("Por favor, digite um gênero válido: ");
+                        novoLivro.genero = teclado.nextLine();
+                    }
+                    
+                    // 5. QUINTO: Captura e valida a Quantidade de Cópias (Estoque)
+                    System.out.print("Quantidade de Cópias Disponíveis: ");
+                    
+                    // VALIDAÇÃO COM HASNEXTINT: Bloqueia a execução e esvazia o lixo do buffer se o operador digitar letras
+                    while (!teclado.hasNextInt()) {
+                        System.out.println(">> Erro: A quantidade de cópias deve ser um número inteiro positivo.");
+                        System.out.print("Por favor, digite uma quantidade válida: ");
+                        teclado.nextLine(); // Descarte do texto incorreto para evitar loop infinito
+                    }
+                    novoLivro.copiasDisponiveis = teclado.nextInt();
+                    teclado.nextLine(); // Limpa o buffer após ler o número inteiro
 
-    // 6. SEXTO: Envia o pacote preenchido para o repositório salvar no banco de dados
-    src.repositories.livro.ReturnTypes.LivroAddType livroSalvo = LivroRepo.addLivro(novoLivro);
-    System.out.println(">> Livro cadastrado com sucesso! ID gerado: " + livroSalvo.id);
-    break;
+                    // 6. SEXTO: Envia o pacote preenchido para o repositório salvar no banco de dados
+                    src.repositories.livro.ReturnTypes.LivroAddType livroSalvo = LivroRepo.addLivro(novoLivro);
+                    System.out.println(">> Livro cadastrado com sucesso! ID gerado: " + livroSalvo.id);
+                    break;
 
                 case 2:
                     System.out.println("\n--- CADASTRAR NOVO USUÁRIO ---");
@@ -123,17 +124,17 @@ public class Biblioteca {
                 case 3:
                     System.out.println("\n--- SOLICITAR EMPRÉSTIMO ---");
                     
-                    // 1. PRIMEIRO: Coleta o ID como String seguindo as recomendações de segurança
+                    // 1. PRIMEIRO: Coleta o ID do usuário de forma protegida contra caracteres textuais
                     System.out.print("Digite o ID do Usuário: ");
-                    String idUserEmpInput = teclado.nextLine();
                     
-                    // Regra de Segurança: Valida se a entrada é estritamente numérica para evitar quebra do sistema
-                    while (!idUserEmpInput.matches("\\d+")) {
+                    // VALIDAÇÃO COM HASNEXTINT: Intercepta e limpa entradas inválidas para evitar estouro do buffer
+                    while (!teclado.hasNextInt()) {
                         System.out.println(">> Erro: O ID do usuário deve conter apenas números.");
                         System.out.print("Por favor, digite um ID válido: ");
-                        idUserEmpInput = teclado.nextLine();
+                        teclado.nextLine(); // Descarta a entrada inválida do buffer do Scanner
                     }
-                    int idUserEmp = Integer.parseInt(idUserEmpInput); 
+                    int idUserEmp = teclado.nextInt();
+                    teclado.nextLine(); // Limpa o buffer do enter residual
 
                     // 2. SEGUNDO: Valida se esse usuário realmente existe no sistema antes de continuar
                     if (!UserRepo.userExists(idUserEmp)) {
@@ -145,22 +146,23 @@ public class Biblioteca {
                     ArrayList<Integer> idsLivrosEmp = new ArrayList<>();
                     String respEmp;
                     do {
-                        // Passo A: Solicita o ID do livro como String para higienização
+                        // Passo A: Faz a pergunta na tela e valida se o ID do livro é estritamente numérico
                         System.out.print("Digite o ID do Livro que deseja pegar: ");
-                        String idLivroInput = teclado.nextLine();
                         
-                        // Passo B: Valida contra caracteres textuais antes de converter
-                        while (!idLivroInput.matches("\\d+")) {
+                        while (!teclado.hasNextInt()) {
                             System.out.println(">> Erro: O ID do livro deve conter apenas números.");
                             System.out.print("Por favor, digite um ID válido: ");
-                            idLivroInput = teclado.nextLine();
+                            teclado.nextLine(); // Limpa a entrada incorreta do buffer
                         }
-                        int idLivro = Integer.parseInt(idLivroInput);
+                        int idLivro = teclado.nextInt();
+                        teclado.nextLine(); // Limpa o buffer do enter residual
+                        
+                        // Passo B: Adiciona o ID numérico validado na lista dinâmica
                         idsLivrosEmp.add(idLivro);
 
                         System.out.print("Deseja incluir mais um livro neste empréstimo? (S/N): ");
                         respEmp = teclado.nextLine();
-                    } while (respEmp.equalsIgnoreCase("S")); // Aplica a comparação de String do slide
+                    } while (respEmp.equalsIgnoreCase("S")); // Aplica a comparação de String ignorando maiúsculas/minúsculas
 
                     // 4. QUARTO: Despacha a lista inteira de IDs de livros coletados para o processamento final
                     LivrosEmprestadosRepo.addEmprestimos(idUserEmp, idsLivrosEmp);
@@ -169,16 +171,16 @@ public class Biblioteca {
                 case 4:
                     System.out.println("\n--- REALIZAR DEVOLUÇÃO ---");
                     
-                    // 1. PRIMEIRO: Identifica qual usuário está vindo devolver o material com captura higienizada
+                    // 1. PRIMEIRO: Identifica qual usuário está vindo devolver o material com validação nativa
                     System.out.print("Digite o ID do Usuário: ");
-                    String idUserDevInput = teclado.nextLine();
                     
-                    while (!idUserDevInput.matches("\\d+")) {
+                    while (!teclado.hasNextInt()) {
                         System.out.println(">> Erro: O ID do usuário deve conter apenas números.");
                         System.out.print("Por favor, digite um ID válido: ");
-                        idUserDevInput = teclado.nextLine();
+                        teclado.nextLine(); // Descarta o caractere inválido textual
                     }
-                    int idUserDev = Integer.parseInt(idUserDevInput);
+                    int idUserDev = teclado.nextInt();
+                    teclado.nextLine(); // Limpa o buffer residual
 
                     // 2. SEGUNDO: Valida a existência do usuário para evitar bugs de inconsistência
                     if (!UserRepo.userExists(idUserDev)) {
@@ -191,14 +193,15 @@ public class Biblioteca {
                     String respDev;
                     do {
                         System.out.print("Digite o ID do Livro que está sendo devolvido: ");
-                        String idLivroDevInput = teclado.nextLine();
                         
-                        while (!idLivroDevInput.matches("\\d+")) {
+                        while (!teclado.hasNextInt()) {
                             System.out.println(">> Erro: O ID do livro deve conter apenas números.");
                             System.out.print("Por favor, digite um ID válido: ");
-                            idLivroDevInput = teclado.nextLine();
+                            teclado.nextLine(); // Consome a entrada incorreta de texto
                         }
-                        int idLivro = Integer.parseInt(idLivroDevInput);
+                        int idLivro = teclado.nextInt();
+                        teclado.nextLine(); // Limpa o buffer do enter residual
+                        
                         idsLivrosDev.add(idLivro);
 
                         System.out.print("Deseja devolver mais um livro agora? (S/N): ");
@@ -212,16 +215,16 @@ public class Biblioteca {
                 case 5:
                     System.out.println("\n--- CONSULTAR LIVRO ---");
                     
-                    // 1. PRIMEIRO: Coleta o código identificador do livro procurado de forma segura
+                    // 1. PRIMEIRO: Coleta o código identificador do livro procurado com verificação tipo-segura
                     System.out.print("Digite o ID do livro procurado: ");
-                    String idLivroBuscaInput = teclado.nextLine();
                     
-                    while (!idLivroBuscaInput.matches("\\d+")) {
+                    while (!teclado.hasNextInt()) {
                         System.out.println(">> Erro: O ID do livro deve conter apenas números.");
                         System.out.print("Por favor, digite um ID válido: ");
-                        idLivroBuscaInput = teclado.nextLine();
+                        teclado.nextLine(); // Limpa o lixo textual do buffer do Scanner
                     }
-                    int idLivroBusca = Integer.parseInt(idLivroBuscaInput);
+                    int idLivroBusca = teclado.nextInt();
+                    teclado.nextLine(); // Limpa o buffer do enter residual
 
                     // 2. SEGUNDO: Solicita a busca ao repositório de livros
                     src.repositories.livro.ReturnTypes.LivroGetType livroAchado = LivroRepo.getLivroById(idLivroBusca);
@@ -241,16 +244,16 @@ public class Biblioteca {
                 case 6:
                     System.out.println("\n--- CONSULTAR USUÁRIO ---");
                     
-                    // 1. PRIMEIRO: Solicita o ID do usuário de forma protegida contra falhas textuais
+                    // 1. PRIMEIRO: Solicita o ID do usuário procurado de forma protegida contra falhas textuais
                     System.out.print("Digite o ID do usuário procurado: ");
-                    String idUserBuscaInput = teclado.nextLine();
                     
-                    while (!idUserBuscaInput.matches("\\d+")) {
+                    while (!teclado.hasNextInt()) {
                         System.out.println(">> Erro: O ID do usuário deve conter apenas números.");
                         System.out.print("Por favor, digite um ID válido: ");
-                        idUserBuscaInput = teclado.nextLine();
+                        teclado.nextLine(); // Limpa o lixo textual do buffer do Scanner
                     }
-                    int idUserBusca = Integer.parseInt(idUserBuscaInput);
+                    int idUserBusca = teclado.nextInt();
+                    teclado.nextLine(); // Limpa o buffer do enter residual
 
                     // 2. SEGUNDO: Busca as informações completas do perfil do usuário
                     src.repositories.user.ReturnTypes.UserGetType usuarioAchado = UserRepo.getUserById(idUserBusca);
