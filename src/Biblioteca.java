@@ -54,7 +54,7 @@ public class Biblioteca {
                     novoLivro.titulo = teclado.nextLine();
                     
                     // VALIDAÇÃO COM WHILE: Bloqueia o avanço do fluxo enquanto o título não for preenchido
-                    while (novoLivro.titulo.trim().isEmpty()) {
+                    while (novoLivro.titulo.equals("")) {
                         System.out.println(">> Erro: O título do livro é um campo obrigatório.");
                         System.out.print("Por favor, digite um título válido: ");
                         novoLivro.titulo = teclado.nextLine();
@@ -64,7 +64,7 @@ public class Biblioteca {
                     System.out.print("Autor do Livro: ");
                     novoLivro.autor = teclado.nextLine();
                     
-                    while (novoLivro.autor.trim().isEmpty()) {
+                    while (novoLivro.autor.equals("")) {
                         System.out.println(">> Erro: O autor do livro é um campo obrigatório.");
                         System.out.print("Por favor, digite um autor válido: ");
                         novoLivro.autor = teclado.nextLine();
@@ -74,7 +74,7 @@ public class Biblioteca {
                     System.out.print("Gênero: ");
                     novoLivro.genero = teclado.nextLine();
                     
-                    while (novoLivro.genero.trim().isEmpty()) {
+                    while (novoLivro.genero.equals("")) {
                         System.out.println(">> Erro: O gênero do livro é um campo obrigatório.");
                         System.out.print("Por favor, digite um gênero válido: ");
                         novoLivro.genero = teclado.nextLine();
@@ -108,7 +108,7 @@ public class Biblioteca {
                     novoUsuario.nome = teclado.nextLine();
 
                     // VALIDAÇÃO COM WHILE: Só permite avançar se o operador digitar um nome válido
-                    while (novoUsuario.nome.trim().isEmpty()) {
+                    while (novoUsuario.nome.equals("")) {
                         System.out.println(">> Erro: O nome do usuário não pode ficar em branco.");
                         System.out.print("Por favor, digite um nome válido: ");
                         novoUsuario.nome = teclado.nextLine();
