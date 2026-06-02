@@ -40,12 +40,29 @@ public class LivrosEmprestadosRepo {
                 System.out.println("Livro com id " + livroId + " não tem cópias disponíveis.");
                 return;
             }
-            // Regra C: Impede o usuário de retirar múltiplos exemplares do mesmo título ao mesmo tempo
+            // Regra C: Impede o usuário de retirar múltiplos exemplares do mesmo título ao mesmo tempo (Banco e Lote atual)
+            boolean jaPossuiEmprestimoAtivo = false;
+
+            // Passo A: Verifica se o usuário já tem esse livro ativo guardado na tabela do banco
             for (LivrosEmprestados livroEmprestado : Database.livrosEmprestados) {
-                if (livroEmprestado.livro_id == livroId && livroEmprestado.user_id == user.id && livroEmprestado.dataDevolucao == null) {
-                    System.out.println("Livro com id " + livroId + " já está emprestado para o usuário.");
-                    return;
+                if (livroEmprestado.livro_id == livroId && livroEmprestado.user_id == userId && livroEmprestado.dataDevolucao == null) {
+                    jaPossuiEmprestimoAtivo = true;
+                    break;
                 }
+            }
+
+            // Passo B: Verifica se o usuário adicionou o mesmo ID de livro duas vezes no mesmo atendimento
+            for (LivrosEmprestados novo : novosEmprestimos) {
+                if (novo.livro_id == livroId) {
+                    jaPossuiEmprestimoAtivo = true;
+                    break;
+                }
+            }
+
+            // Passo C: Aborta a inserção caso encontre o mesmo livro pendente de devolução em qualquer checagem
+            if (jaPossuiEmprestimoAtivo) {
+                System.out.println("Livro com id " + livroId + " já está emprestado para o usuário.");
+                return; 
             }
             
             // 3. TERCEIRO: Consome uma cópia do acervo físico e salva o estado atualizado do estoque
